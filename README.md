@@ -1,1 +1,1 @@
-# Handwritten-Digit-Recognition-Neural-Network
+# Handwritten Digit Recognition using Neural Networks
