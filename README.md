@@ -25,6 +25,4 @@ stochastic gradient descent backpropagation with RMSProp adaptive learning rates
 
 Given a set of training vectors {xn} where n = 1...N, with corresponding target vectors {tn}, we seek to minimize the cost function E(w).
 
-\begin{equation}
-E(w) = \sum_{n=1}^{N} y(xn,w)
-\end{equation}
+$ E(w)=\frac{1}{N}\sum_{n=1}^{N}\left \| y(x_{n},w)-t_{n} \right \|^{2}
