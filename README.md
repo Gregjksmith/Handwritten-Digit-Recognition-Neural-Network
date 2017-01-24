@@ -19,7 +19,7 @@ total: 266610 total tunable parameters.
 
 ## Learning Method
 
-stochastic gradient descent backpropagation with RMSProp adaptive learning rates.
+Stochastic gradient descent backpropagation with Root Mean Square Propagation.
 
 ### Cost Function
 
@@ -33,3 +33,29 @@ Each neuron (or activation) in the network is a weighted sum of the activations 
 activation function to each node h(t), capping the activations. Here we use the sigmoid function.
 
 ![sigmoid](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/sigmoid.gif?raw=true)
+
+The activations are calculated by:
+
+![Activations](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/Activation.gif?raw=true)
+
+where k is the neuron index of a given layer and j is the neuron index in the layer preceding k.
+
+### Algorithm
+
+Hyperparameters: global learning rate (epsilon), decay raye (rho), number of iterations, stochastic sampling size.
+
+1. for i = 1..iterations
+2.  stochastically sample a minibatch of training images
+3.  compute the gradient of the cost with respect to the neural network parameters w. Use [Backpropagation] https://en.wikipedia.org/wiki/Backpropagation.
+4.  accumulate the squared gradient r with the decay rate.
+
+![](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/rmsProp.gif?raw=true)
+
+5.  compute the update paramater
+
+![](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/parameterUpdate.gif?raw=true)
+
+6.  update the neural network parameters.
+![](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/update.gif?raw=true)
+
+
