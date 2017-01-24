@@ -10,10 +10,10 @@ Handwritten Digits taken from [The MNIST Database of Handwritten Digits](http://
 
 ![Neural Network with 2 Hidden Layers](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/TwoLayerNeuralNetwork.png?raw=true)
 
-Input : handwritten vectorized image, 784 nodes.
-Layer 1 : fully connected, 300 neurons. 235200 total weights. 300 biases. Sigmoid activation function.
-Layer 2 : fully connected, 100 neurons. 30000 total weights. 100 biases. Sigmoid activation function.
-Output layer : fully connected, 10 neurons. 1000 total weights. 10 biases. Sigmoid activation function.
+1. Input : handwritten vectorized image, 784 nodes.
+2. Layer 1 : fully connected, 300 neurons. 235200 total weights. 300 biases. Sigmoid activation function.
+3. Layer 2 : fully connected, 100 neurons. 30000 total weights. 100 biases. Sigmoid activation function.
+4. Output layer : fully connected, 10 neurons. 1000 total weights. 10 biases. Sigmoid activation function.
 
 total: 266610 total tunable parameters.
 
