@@ -1,21 +1,28 @@
-
 /*
-DIGIT RECOGNITION USING CONVOLUTIONAL NEURAL NETWORKS
+DIGIT RECOGNITION USING NEURAL NETWORKS.
+Greg Smith 2016.
 
 Implementation of "Gradient-Based Learning Applied to Document Recognition"
 	LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
+%%Training Set%%
+
+MNIST Handwritten digit dataset.
+
 %%Architecture%%
 
--input : handwritten image
+-input : handwritten vectorized image, 784 nodes.
+-layer 1 : fully connected, 300 nodes. 235200 total weights. 300 biases. Sigmoid activation function.
+-layer 2 : fully connected, 100 nodes. 30000 total weights. 100 biases. Sigmoid activation function.
+-output layer : fully connected, 10 nodes. 1000 total weights. 10 biases. Sigmoid activation function.
 
--c1 : convolutional layer
+total: 266610 total tunable parameters.
 
-
-%%Training Set%%
+Each activation 
 
 %%Learning%%
 
+stochastic gradient descent backpropagation with RMSProp adaptive learning rates.
 */
 
 #include "header\ConvolutionalNeuralNetwork.h"
