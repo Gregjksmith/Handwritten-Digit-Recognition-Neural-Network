@@ -24,9 +24,12 @@ stochastic gradient descent backpropagation with RMSProp adaptive learning rates
 ### Cost Function
 
 Given a set of training vectors {xn} where n = 1...N, with corresponding target vectors {tn}, we seek to minimize the cost function E(w).
+
 ![Cost](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/CostFunction.gif?raw=true)
+
 w is the set of neural network parameters and y(.) models the output of the neural network.
 
 Each neuron (or activation) in the network is a weighted sum of the activations in the previous layer with an added bias. We also apply a non-linear
 activation function to each node h(t), capping the activations. Here we use the sigmoid function.
+
 ![sigmoid](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/sigmoid.gif?raw=true)
