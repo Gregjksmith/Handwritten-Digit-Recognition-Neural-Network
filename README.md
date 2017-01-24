@@ -42,10 +42,10 @@ where k is the neuron index of a given layer and j is the neuron index in the la
 
 ### Algorithm
 
-Hyperparameters: global learning rate (epsilon), decay raye (rho), number of iterations, stochastic sampling size.
+Hyperparameters: global learning rate (epsilon), decay rate (rho), number of iterations (Iters), stochastic sampling size.
 
-1. for i = 1..iterations
-2.  stochastically sample a minibatch of training images
+1. for i = 1 ... Iters
+2.  stochastically sample a minibatch of training images (N)
 3.  compute the gradient of the cost with respect to the neural network parameters w. Use [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation)
 4.  accumulate the squared gradient r with the decay rate. ![](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/rmsProp.gif?raw=true)
 5.  compute the update paramater. ![](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/parameterUpdate.gif?raw=true)
