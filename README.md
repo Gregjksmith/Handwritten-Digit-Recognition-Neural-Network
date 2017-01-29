@@ -61,7 +61,7 @@ Hyperparameters: learning rate (epsilon), number of iterations/epochs (Iteration
 | Layer 2 Neurons			 | 50     		|
 | Output Layer Neurons  	 | 10     		|
 | Mini-batch size			 | 200			|
-| epochs                	 | 5000			|
+| Epochs                	 | 5000			|
 | Learning Rate (epsilon)    | 5.0			|
 
 
