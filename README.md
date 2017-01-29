@@ -54,20 +54,23 @@ Hyperparameters: learning rate (epsilon), number of iterations/epochs (Iteration
 
 ### Hyperparameters
 
-| Hyperparameter        	| Value         |
-| --------------------------|:-------------:|
-| Input Layer Neurons   	| 784		    |
-| Layer 1 Neurons			| 50      		|
-| Layer 2 Neurons			| 50     		|
-| Output Layer Neurons  	| 10     		|
-| Mini-batch size			| 200			|
-| epochs                	| 5000			|
+| Hyperparameter        	 | Value         |
+|:--------------------------:|:-------------:|
+| Input Layer Neurons   	 | 784		    |
+| Layer 1 Neurons			 | 50      		|
+| Layer 2 Neurons			 | 50     		|
+| Output Layer Neurons  	 | 10     		|
+| Mini-batch size			 | 200			|
+| epochs                	 | 5000			|
+| Learning Rate (epsilon)    | 5.0			|
 
 
 ### Training Time and Error Rate
 
-| Training Time				| 100 minutes	|
-| Total Training Set Cost   | 0.021939		|
-| Error Rate   				| 3.49%			|
+| 				        	 | Value         |
+|:--------------------------:|:-------------:|
+| Training Time				 | 100 minutes	|
+| Total Training Set Cost    | 0.021939		|
+| Error Rate   				 | 3.49%			|
 
 ![cost results](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/NeuralNetworkTrainingGraph.png?raw=true)
