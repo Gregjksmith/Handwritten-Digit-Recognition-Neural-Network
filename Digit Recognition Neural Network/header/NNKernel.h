@@ -7,9 +7,9 @@
 
 #define NN_KENRNEL_SOURCE "kernels/NeuralNetwork.cl"
 
-#define NN_INPUT_SIZE 28*28
-#define NN_LAYER_1_SIZE 400
-#define NN_LAYER_2_SIZE 200
+#define NN_INPUT_SIZE (28*28)
+#define NN_LAYER_1_SIZE 300
+#define NN_LAYER_2_SIZE 100
 #define NN_OUTPUT_SIZE 10
 
 #define NN_ACTIVATION_SIZE (NN_LAYER_1_SIZE + NN_LAYER_2_SIZE + NN_OUTPUT_SIZE)
@@ -54,9 +54,9 @@ float getBiasLayerOutput(float* w, int layerOutputIndex);
 
 using namespace cv;
 
-#define STOCHASTIC_SAMPLING_SIZE 2000
-#define NUM_ITERS_EARLY_STOPPING 200
-#define SAMPLING_ITERATIONS 1
+#define STOCHASTIC_SAMPLING_SIZE 200
+#define NUM_ITERS_EARLY_STOPPING 1
+#define SAMPLING_ITERATIONS 5000
 #define EARLY_STOPPING_COST 0.0000001f
 
 /*
@@ -89,7 +89,7 @@ public:
 	void train
 	trains the Neural Network parameters using the training images and training labels.
 	*/
-	void train();
+	virtual void train();
 
 	/*
 	float totalCost
@@ -114,6 +114,7 @@ public:
 	void exportNNParams(char* filePath);
 	void importNNParams(char* filePath);
 	void exportReport(char* filePath);
+	void exportReport(char* filePath, vector<Mat*> &testImages, vector<unsigned char> &testLabels);
 
 private:
 
@@ -231,6 +232,12 @@ private:
 	updates the NNweights of the Neural Network using the RMSProp algorithm.
 	*/
 	void updateWeightsRMS();
+
+	/*
+	void updateNNParams
+	updates the NNweights of the Neural Network.
+	*/
+	void updateNNParams();
 
 	/*
 	float gradientInnerProduct

@@ -52,6 +52,7 @@ void NNKernel::train()
 	srand(time(NULL));
 
 	int trainingSamples[STOCHASTIC_SAMPLING_SIZE];
+	clearLearningParameter();
 
 	for (int stochSampIndex = 0; stochSampIndex < SAMPLING_ITERATIONS; stochSampIndex++)
 	{
@@ -60,8 +61,6 @@ void NNKernel::train()
 			float r =  ((float)numTrainingSample - 1.0f)*((float)rand() / (float)RAND_MAX);
 			trainingSamples[tsIndex] = (int)floor(r);
 		}
-
-		clearLearningParameter();
 
 		for (int iter = 0; iter < NUM_ITERS_EARLY_STOPPING; iter++)
 		{
@@ -88,13 +87,10 @@ void NNKernel::train()
 			readCost();
 			cost = cost / (float)STOCHASTIC_SAMPLING_SIZE;
 
-			updateLearningParams();
-			updateWeightsRMS();
+			updateNNParams();
 
 			miniBatchCostHistory.push_back(cost);
 
-			if (cost < EARLY_STOPPING_COST)
-				break;
 		}
 	}
 	elapsedTime = time(0) - elapsedTime;
@@ -292,13 +288,11 @@ void NNKernel::initNNParams()
 
 void NNKernel::initGradientVector()
 {
-	float* g = new float[NN_WEIGHT_SIZE];
 	for (int i = 0; i < NN_WEIGHT_SIZE; i++)
 	{
-		g[i] = 0.0;
+		gradient[i] = 0.0;
 	}
-	cl_int ret = clEnqueueWriteBuffer(__context->commandQueue, memobjGradientVector, CL_TRUE, 0, NN_WEIGHT_SIZE, g, 0, NULL, NULL);
-	delete g;
+	cl_int ret = clEnqueueWriteBuffer(__context->commandQueue, memobjGradientVector, CL_TRUE, 0, NN_WEIGHT_SIZE*sizeof(float), gradient, 0, NULL, NULL);
 }
 
 void NNKernel::addNNKernelArg()
@@ -384,7 +378,7 @@ void NNKernel::addNNKernelArg()
 	/*UPDATE VECTOR*/
 	addKernelArg(12, 0, sizeof(cl_mem), (void*)&memobjNNParamsVector);
 	addKernelArg(12, 1, sizeof(cl_mem), (void*)&memobjGradientVector);
-	addKernelArg(12, 2, sizeof(cl_float), (void*)&learningFactor);
+	//addKernelArg(12, 2, sizeof(cl_float), (void*)&learningFactor);
 
 	/*COST FUNCTIOn*/
 	addKernelArg(13, 0, sizeof(cl_mem), (void*)&memobjOutputTruthVector);
@@ -568,6 +562,12 @@ void NNKernel::updateWeightsRMS()
 	enqueueKernel(16);
 }
 
+void NNKernel::updateNNParams()
+{
+	totalWorkItems = NN_WEIGHT_SIZE;
+	enqueueKernel(12);
+}
+
 void NNKernel::clearCost()
 {
 	cost = 0;
@@ -689,7 +689,7 @@ void NNKernel::exportReport(char* filePath)
 
 	std::string fp(filePath);
 	std::ofstream myfile;
-	myfile.open(fp, std::ofstream::app);
+	myfile.open(fp, std::ofstream::out);
 
 	struct tm * now = localtime(&t);
 	myfile << "Date: ";
@@ -727,7 +727,7 @@ void NNKernel::exportReport(char* filePath)
 	myfile << std::to_string(STOCHASTIC_SAMPLING_SIZE);
 	myfile << "\n";
 
-	myfile << "minibatch cost history:\n ";
+	myfile << "minibatch cost history:\n";
 	for (int i = 0; i < miniBatchCostHistory.size(); i++)
 	{
 		myfile << std::to_string(miniBatchCostHistory[i]);
@@ -737,6 +737,70 @@ void NNKernel::exportReport(char* filePath)
 	float c = totalCost();
 	myfile << "total training set cost :";
 	myfile << std::to_string(c);
+
+	myfile.close();
+}
+
+void NNKernel::exportReport(char* filePath, vector<Mat*> &testImages, vector<unsigned char> &testLabels)
+{
+	time_t t = time(0);
+
+	std::string fp(filePath);
+	std::ofstream myfile;
+	myfile.open(fp, std::ofstream::out);
+
+	struct tm * now = localtime(&t);
+	myfile << "Date: ";
+	myfile << (now->tm_year + 1900);
+	myfile << '-';
+	myfile << (now->tm_mon + 1);
+	myfile << '-';
+	myfile << now->tm_mday;
+	myfile << "\n";
+
+
+	myfile << "Training time: ";
+	myfile << std::to_string((float)elapsedTime / 60.0);
+	myfile << "  min";
+	myfile << "\n";
+
+
+	myfile << "input vector size: ";
+	myfile << std::to_string(NN_INPUT_SIZE);
+	myfile << "\n";
+
+	myfile << "layer 1 activation size: ";
+	myfile << std::to_string(NN_LAYER_1_SIZE);
+	myfile << "\n";
+
+	myfile << "layer 2 activation size: ";
+	myfile << std::to_string(NN_LAYER_2_SIZE);
+	myfile << "\n";
+
+	myfile << "output vector size: ";
+	myfile << std::to_string(NN_OUTPUT_SIZE);
+	myfile << "\n";
+
+	myfile << "stochastic minibatch size: ";
+	myfile << std::to_string(STOCHASTIC_SAMPLING_SIZE);
+	myfile << "\n";
+
+	myfile << "minibatch cost history:\n";
+	for (int i = 0; i < miniBatchCostHistory.size(); i++)
+	{
+		myfile << std::to_string(miniBatchCostHistory[i]);
+		myfile << "\n";
+	}
+
+	float c = totalCost();
+	myfile << "total training set cost :";
+	myfile << std::to_string(c);
+	myfile << "\n";
+
+	float errorRate = test(testImages, testLabels);
+	myfile << "error rate:";
+	myfile << std::to_string(errorRate);
+	myfile << "\n";
 
 	myfile.close();
 }

@@ -1,3 +1,4 @@
+
 /*
 DIGIT RECOGNITION USING NEURAL NETWORKS.
 Greg Smith 2016.
@@ -12,17 +13,17 @@ MNIST Handwritten digit dataset.
 %%Architecture%%
 
 -input : handwritten vectorized image, 784 nodes.
--layer 1 : fully connected, 300 nodes. 235200 total weights. 300 biases. Sigmoid activation function.
--layer 2 : fully connected, 100 nodes. 30000 total weights. 100 biases. Sigmoid activation function.
--output layer : fully connected, 10 nodes. 1000 total weights. 10 biases. Sigmoid activation function.
+-layer 1 : fully connected, 50 nodes. 39200 total weights. 50 biases. Sigmoid activation function.
+-layer 2 : fully connected, 50 nodes. 2500 total weights. 50 biases. Sigmoid activation function.
+-output layer : fully connected, 10 nodes. 500 total weights. 10 biases. Sigmoid activation function.
 
-total: 266610 total tunable parameters.
+total: 42310 total tunable parameters.
 
 Each activation 
 
 %%Learning%%
 
-stochastic gradient descent backpropagation with RMSProp adaptive learning rates.
+mini-batch gradient descent backpropagation.
 */
 
 #include "header\ConvolutionalNeuralNetwork.h"
@@ -34,6 +35,7 @@ stochastic gradient descent backpropagation with RMSProp adaptive learning rates
 #include "header\ClContext.h"
 #include "header\CNNKernel.h"
 #include "header\NNKernel.h"
+#include "header\CNNKernel.h"
 
 #define NUM_TRAINING_IMAGES 60000
 #define TRAINING_IMAGES_WIDTH 28
@@ -61,24 +63,23 @@ void loadTrainingSet(char* imageFilePath, char* labelFilePath, int trainingSetSi
 
 int main()
 {
+
 	vector<Mat*> trainingImages;
 	vector<unsigned char> trainingLabels;
 	vector<Mat*> testImages;
 	vector<unsigned char> testLabels;
-
+	/*load the training and test sets*/
 	loadTrainingSet(TRAINING_SET_IMAGE_PATH, TRAINING_SET_LABEL_PATH, NUM_TRAINING_IMAGES, trainingImages, trainingLabels);
 	loadTrainingSet(TEST_SET_IMAGE_PATH, TEST_SET_LABEL_PATH, NUM_TEST_IMAGES, testImages, testLabels);
-
+	
 	ClContext* clContext = new ClContext();
 	NNKernel* nn = new NNKernel(clContext, trainingImages, trainingLabels);
+	/*train the neural network*/
 	nn->train();
+
+	/*export the nn with a report*/
 	nn->exportNNParams(NN_PARAMS_EXPORT_PATH);
-	nn->exportReport(REPORT_PATH);
-
-
-	float testErrorRate = nn->test(testImages, testLabels);
-
-	
+	nn->exportReport(REPORT_PATH, testImages, testLabels);
 }
 
 
@@ -113,7 +114,7 @@ void loadTrainingSet(char* imageFilePath, char* labelFilePath, int trainingSetSi
 			for (int x = 0; x < TRAINING_IMAGES_HEIGHT; x++)
 			{
 				imageFile.read((char*)&pixel, 1);
-				image->at<float>(y, x) = ((float)pixel)/255.0;
+				image->at<float>(y, x) = ((float)pixel) / 255.0;
 			}
 		}
 		trainingImages.push_back(image);
