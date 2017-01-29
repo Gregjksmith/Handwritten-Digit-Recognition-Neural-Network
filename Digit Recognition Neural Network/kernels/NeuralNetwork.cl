@@ -13,16 +13,18 @@ output vector is N samples of 'OUTPUT_SIZE' size.
 faster or may display violent oscillations. Careful parameter selection is required.
 */
 
-#define INPUT_SIZE 28*28
+#define INPUT_SIZE (28*28)
 
-#define LAYER_1_SIZE 400
-#define LAYER_2_SIZE 200
+#define LAYER_1_SIZE 50
+#define LAYER_2_SIZE 50
 
 #define OUTPUT_SIZE 10
 
-#define LEARNING_RATE_EPS 0.1
+#define LEARNING_RATE_EPS 0.02
 #define LEARNING_DECAY_RATE 0.5
 #define DELTA 0.000001
+
+#define LEARNING_RATE 5.0
 
 /* WEIGHT STRUCTURE */
 typedef struct _NNweights
@@ -363,9 +365,8 @@ kernel void updateNNparams
 updates the Neural netowrk weights by the learningRate times the negative gradient
 @param float* weights
 @param float* gradient
-@param float learningRate
 */
-__kernel void updateNNparams(__global float* weights, __global float* gradient, float learningRate);
+__kernel void updateNNparams(__global float* weights, __global float* gradient);
 
 /*
 kernel void updateNNParamsRMS
@@ -481,7 +482,7 @@ float activationFunction(float x)
 
 float activationDerivative(float x)
 {
-	float s = activationFunction(x);
+	float s = x;//activationFunction(x);
 	s = s*(1.0 - s);
 	return s;
 }
@@ -545,7 +546,7 @@ __kernel void activationOutputDelta(__global float* output, int outputIndex, __g
 	int activationId = get_global_id(0);
 	float delta = 0.0;
 	float activationSample = activation->layerOutputActivation[activationId];
-	delta = (activationSample - sampleOutput(output, outputIndex, activationId))*activationDerivative(activationSample);
+	delta = (activationSample - sampleOutput(output, outputIndex, activationId));
 	activationDelta->layerOutputActivationDelta[activationId] = delta;
 }
 
@@ -553,16 +554,17 @@ __kernel void activationLayer2Delta(__global Activation* activation, __global Ac
 {
 	int activationId = get_global_id(0);
 	float delta = 0.0;
+	float activationDeltaSample;
 	float activationSample;
 	float weightSample;
+
 	for(int outputIndex = 0; outputIndex < OUTPUT_SIZE; outputIndex++)
 	{
-		activationSample = activationDelta->layerOutputActivationDelta[outputIndex];
+		activationSample = activation->layerOutputActivation[outputIndex];
+		activationDeltaSample = activationDelta->layerOutputActivationDelta[outputIndex];
 		weightSample = getWeightLayerOutput(weights, activationId, outputIndex);
-		delta += activationSample*weightSample;
+		delta += activationDeltaSample*weightSample*activationDerivative(activationSample);
 	}
-	activationSample = activation->layer2Activation[activationId];
-	delta = delta*activationDerivative(activationSample);
 	activationDelta->layer2ActivationDelta[activationId] = delta;
 }
 
@@ -571,15 +573,17 @@ __kernel void activationLayer1Delta(__global Activation* activation, __global Ac
 	int activationId = get_global_id(0);
 	float delta = 0.0;
 	float activationSample;
+	float activationDeltaSample;
 	float weightSample;
+
 	for(int layer2Index = 0; layer2Index < LAYER_2_SIZE; layer2Index++)
 	{
-		activationSample = activationDelta->layer2ActivationDelta[layer2Index];
+		activationDeltaSample = activationDelta->layer2ActivationDelta[layer2Index];
+		activationSample = activation->layer2Activation[layer2Index];
 		weightSample = getWeightLayer2(weights, activationId, layer2Index);
-		delta += activationSample*weightSample;
+		delta += activationDeltaSample*weightSample*activationDerivative(activationSample);
 	}
-	activationSample = activation->layer1Activation[activationId];
-	delta = delta*activationDerivative(activationSample);
+
 	activationDelta->layer1ActivationDelta[activationId] = delta;
 }
 
@@ -618,12 +622,11 @@ __kernel void addGradientWeightLayer1(__global float* input, int inputIndex, __g
 	getWeightIndexLayer1(gradientId, &inputActivation, &layer1ActivationIndex);
 
 	float grad = gradient->layer1Weights[gradientId];
-	float alInput = sampleImage(input, inputIndex, inputActivation);
+	float inSample = sampleImage(input, inputIndex, inputActivation);
 	float del1 = activationDelta->layer1ActivationDelta[layer1ActivationIndex];
+	float act1 = activation->layer1Activation[layer1ActivationIndex];
 
-	grad = grad + del1*alInput;
-
-	// gradient = gradient + input*deltaLayer1
+	grad = grad + del1*inSample*activationDerivative(act1);
 	gradient->layer1Weights[gradientId] = grad;
 }
 
@@ -638,10 +641,10 @@ __kernel void addGradientWeightLayer2(__global Activation* activation, __global 
 	float grad = gradient->layer2Weights[gradientId];
 	float al1 = activation->layer1Activation[layer1ActivationIndex];
 	float del2 = activationDelta->layer2ActivationDelta[layer2ActivationIndex];
+	float act2 = activation->layer2Activation[layer2ActivationIndex];
 
-	grad = grad + del2*al1;
+	grad = grad + del2*al1*activationDerivative(act2);
 
-	// gradient = gradient + activationLayer1*deltaLayer2
 	gradient->layer2Weights[gradientId] = grad;
 }
 
@@ -656,8 +659,9 @@ __kernel void addGradientWeightLayerOutput(__global Activation* activation, __gl
 	float grad = gradient->layerOutputWeights[gradientId];
 	float al2 = activation->layer2Activation[layer2ActivationIndex];
 	float delOut = activationDelta->layerOutputActivationDelta[outputActivationIndex];
+	float actOut = activation->layerOutputActivation[outputActivationIndex];
 
-	grad = grad + delOut*al2;
+	grad = grad + delOut*al2*activationDerivative(actOut);
 
 	// gradient = gradient + activationLayer2*deltaOutput
 	gradient->layerOutputWeights[gradientId] = grad;
@@ -667,27 +671,41 @@ __kernel void addGradientWeightLayerOutput(__global Activation* activation, __gl
 __kernel void addGradientBiasLayer1(__global Activation* activation, __global NNweights* weights, __global ActivationDelta* activationDelta, __global Gradient* gradient)
 {
 	int gradientId = get_global_id(0);
-	gradient->layer1Bias[gradientId] += activationDelta->layer1ActivationDelta[gradientId];
+	float grad = gradient->layer1Bias[gradientId];
+	float actDelta = activationDelta->layer1ActivationDelta[gradientId];
+	float act = activation->layer1Activation[gradientId];
+
+	gradient->layer1Bias[gradientId] = grad + actDelta*activationDerivative(act);
 }
 
 __kernel void addGradientBiasLayer2(__global Activation* activation, __global NNweights* weights, __global ActivationDelta* activationDelta, __global Gradient* gradient)
 {
 	int gradientId = get_global_id(0);
-	gradient->layer2Bias[gradientId] += activationDelta->layer2ActivationDelta[gradientId];
+
+	float grad = gradient->layer2Bias[gradientId];
+	float actDelta = activationDelta->layer2ActivationDelta[gradientId];
+	float act = activation->layer2Activation[gradientId];
+
+	gradient->layer2Bias[gradientId] = grad + actDelta*activationDerivative(act);
 }
 
 __kernel void addGradientBiasLayerOutput(__global Activation* activation, __global NNweights* weights, __global ActivationDelta* activationDelta, __global Gradient* gradient)
 {
 	int gradientId = get_global_id(0);
-	gradient->layerOutputBias[gradientId] += activationDelta->layerOutputActivationDelta[gradientId];
+
+	float grad = gradient->layerOutputBias[gradientId];
+	float actDelta = activationDelta->layerOutputActivationDelta[gradientId];
+	float act = activation->layerOutputActivation[gradientId];
+
+	gradient->layerOutputBias[gradientId] = grad + actDelta*activationDerivative(act);
 }
 
-__kernel void updateNNparams(__global float* weights, __global float* gradient, float learningRate)
+__kernel void updateNNparams(__global float* weights, __global float* gradient)
 {
 	int gradientId = get_global_id(0);
 	float w = weights[gradientId];
 	float g = gradient[gradientId];
-	w = w - g*learningRate;
+	w = w - g*LEARNING_RATE;
 	weights[gradientId] = w;
 }
 
@@ -700,7 +718,8 @@ __kernel void updateNNParamsRMS(__global float* weights, __global float* gradien
 	learnRate = min(learnRate,200.0);
 	float gradDelta = -g*learnRate;
 
-	weights[gradientId] = weights[gradientId] + gradDelta;
+	//weights[gradientId] = weights[gradientId] + gradDelta;
+	weights[gradientId] = weights[gradientId] - 5.0*gradient[gradientId];
 }
 
 __kernel void cost(__global float* outputVector, int outputIndex, __global Activation* activation, __global float* returnCost)
