@@ -11,15 +11,15 @@ Handwritten Digits taken from [The MNIST Database of Handwritten Digits](http://
 ![Neural Network with 2 Hidden Layers](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/TwoLayerNeuralNetwork.png?raw=true)
 
 1. Input : handwritten vectorized image, 784 nodes.
-2. Layer 1 : fully connected, 300 neurons. 235200 total weights. 300 biases. Sigmoid activation function.
-3. Layer 2 : fully connected, 100 neurons. 30000 total weights. 100 biases. Sigmoid activation function.
-4. Output layer : fully connected, 10 neurons. 1000 total weights. 10 biases. Sigmoid activation function.
+2. Layer 1 : fully connected, 50 nodes. 39200 total weights. 50 biases. Sigmoid activation function.
+3. Layer 2 : fully connected, 50 nodes. 2500 total weights. 50 biases. Sigmoid activation function.
+4. Output layer : fully connected, 10 nodes. 500 total weights. 10 biases. Sigmoid activation function.
 
-total: 266610 total tunable parameters.
+total: 42310 total tunable parameters.
 
 ## Learning Method
 
-Stochastic gradient descent backpropagation with Root Mean Square Propagation.
+mini-batch gradient descent backpropagation.
 
 ### Cost Function
 
@@ -42,12 +42,33 @@ where k is the neuron index of a given layer and j is the neuron index in the la
 
 ### Algorithm
 
-Hyperparameters: global learning rate (epsilon), decay rate (rho), number of iterations (Iters), stochastic sampling size.
+Hyperparameters: learning rate (epsilon), number of iterations/epochs (Iterations), mini-batch sampling size (N).
 
-1. for i = 1 ... Iters
+1. for i = 1 ... Iterations
 2.  stochastically sample a minibatch of training images (N)
 3.  compute the gradient of the cost with respect to the neural network parameters w. Use [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation)
-4.  accumulate the squared gradient r with the decay rate. ![](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/rmsProp.gif?raw=true)
-5.  compute the update paramater. ![](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/parameterUpdate.gif?raw=true)
-6.  update the neural network parameters. ![](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/update.gif?raw=true)
+5.  update the neural network parameters. ![](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/update.gif?raw=true)
 7.  end
+
+## Results
+
+### Hyperparameters
+
+| Hyperparameter        	| Value         |
+| --------------------------|:-------------:|
+| Input Layer Neurons   	| 784		    |
+| Layer 1 Neurons			| 50      		|
+| Layer 2 Neurons			| 50     		|
+| Output Layer Neurons  	| 10     		|
+| Mini-batch size			| 200			|
+| epochs                	| 5000			|
+
+
+### Training Time and Error Rate
+
+| --------------------------|:-------------:|
+| Training Time				| 100 minutes	|
+| Total Training Set Cost   | 0.021939		|
+| Error Rate   				| 3.49%			|
+
+![cost results]https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/NeuralNetworkTrainingGraph.png?raw=true
