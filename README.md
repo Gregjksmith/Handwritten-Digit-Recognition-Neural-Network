@@ -66,9 +66,8 @@ Hyperparameters: learning rate (epsilon), number of iterations/epochs (Iteration
 
 ### Training Time and Error Rate
 
-| --------------------------|:-------------:|
 | Training Time				| 100 minutes	|
 | Total Training Set Cost   | 0.021939		|
 | Error Rate   				| 3.49%			|
 
-![cost results]https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/NeuralNetworkTrainingGraph.png?raw=true
+![cost results](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/NeuralNetworkTrainingGraph.png?raw=true)
