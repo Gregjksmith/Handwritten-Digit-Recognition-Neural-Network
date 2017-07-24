@@ -74,3 +74,7 @@ Hyperparameters: learning rate (epsilon), number of iterations/epochs (Iteration
 | Error Rate   				 | 3.49%			|
 
 ![cost results](https://github.com/Gregjksmith/Handwritten-Digit-Recognition-Neural-Network/blob/master/pictures/NeuralNetworkTrainingGraph.png?raw=true)
+
+## License
+
+This project is licensed under the terms of the MIT license.
